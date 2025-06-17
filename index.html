@@ -1,13 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Charity Water Game</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flow to Me - Level 1</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-    <h1>Welcome to the Charity Water Game Prototype</h1>
-    <script src="script.js"></script>
+  <header class="top-bar">
+    <div class="logo">
+      <a href="https://www.charitywater.org/" target="_blank">
+        <img src="img/charity-water-logo.png" alt="charity: water logo" style="height:20px; vertical-align:middle;">
+      </a>
+    </div>
+    <div class="menu-icon">☰</div>
+  </header>
+
+  <main>
+    <h1>Flow to Me</h1>
+    <p class="level-label">Level 1</p>
+
+    <div id="gameBoard" class="grid"></div>
+
+    <svg class="pipe-l" width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M22 0 22 44" stroke="currentColor" stroke-width="26"/>
+    </svg>
+  
+    <svg class="pipe-r" width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M44 13C23 13 13 23 13 44" stroke="currentColor" stroke-width="26"/>
+    </svg>
+
+  </main>
+
+  <script src="script.js"></script>
 </body>
 </html>
