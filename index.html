@@ -5,10 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Flow to Me - Level 1</title>
   <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
 </head>
 <body>
   <header class="top-bar">
-    <div class="logo">
+    <div class=clean class="logo">
       <a href="https://www.charitywater.org/" target="_blank">
         <img src="img/charity-water-logo.png" alt="charity: water logo" style="height:20px; vertical-align:middle;">
       </a>
@@ -21,7 +23,18 @@
     <p class="level-label">Level 1</p>
 
     <div id="gameBoard" class="grid"></div>
-    
+    <div id="tile-label" class="hidden"></div>
+    <div id="village-tracker">
+      0 / 0 villages have clean water
+    </div>
+    <div id="win-overlay" class="overlay hidden">
+      <div id="win-popup" class="popup">
+        <h2>Success!</h2>
+        <p>Clean water has reached all villages</p>
+        <button id="next-level-btn">Next Level</button>
+      </div>
+    </div>
+
   </main>
 
   <script src="script.js"></script>

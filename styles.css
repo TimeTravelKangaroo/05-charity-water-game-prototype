@@ -20,13 +20,13 @@ body {
 
 .menu-icon {
   font-size: 32px;
-  color: #1f4e63;
+  color: #78a8ba;
   cursor: pointer;
 }
 
 h1 {
-  margin-top: 0em;    /* smaller top margin */
-  margin-bottom: 0.3em; /* larger bottom margin */
+  margin-top: 0em;    
+  margin-bottom: 0.3em;
   font-size: 1.8rem;
 }
 
@@ -54,19 +54,123 @@ h1 {
   align-items: center;
   justify-content: center;
   font-size: 20px;
-  transition: all 0.3s;
+  position: relative;
 }
 
 .pipe{
-  stroke: currentColor;
   transition: transform 0.3s ease;
+  color: #868686;
 }
 
-.pipe svg {
-  width: 100%;
-  height: 100%;
+.clean {
+  color: #14a1ea;
+  transition: color 0.4s ease;
+}
+
+.happy-icon {
+  display: none;
+  position: absolute;
+  bottom: 4%;
+  left: 4%;
+  width: 40%;
+  height: 40%; 
+  pointer-events: none;
+}
+
+.village .happy-icon.show {
   display: block;
 }
+
+#tile-label {
+  position: absolute;
+  background: #333;
+  color: white;
+  padding: 4px 8px;
+  font-size: 0.8rem;
+  border-radius: 6px;
+  pointer-events: none;
+  z-index: 1000;
+  white-space: nowrap;
+  transition: opacity 0.2s;
+  transform: translateX(-50%);
+}
+
+#tile-label.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+#tile-label.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+
+#village-tracker {
+  font-size: 1rem;
+  margin: 30px 0;
+}
+
+.hidden {
+  display: none;
+}
+
+/* The gray overlay background (no animation) */
+#win-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3); /* translucent gray */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 1; /* no fade */
+  transition: none; /* <- no animation here */
+}
+
+#win-overlay.hidden {
+  display: none;
+  opacity: 0;
+}
+
+
+/* The popup box (this animates) */
+#win-popup {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  padding: 1em 2em;
+  max-width: 300px;
+  text-align: center;
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity 0.6s ease, transform 0.8s ease;
+}
+
+#win-popup.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+#next-level-btn {
+  margin-top: 1em;
+  padding: 0.5em 1em;
+  font-size: 1rem;
+  background-color: #14a1ea;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+canvas.confetti.foreground-confetti {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  z-index: 2000 !important;
+  pointer-events: none;
+}
+
 
 /* Responsive: On large screens, swap rows and columns and increase sizes */
 @media (min-width: 700px) {
@@ -81,7 +185,7 @@ h1 {
     height: 90px;
     font-size: 28px;
   }
-  .tile img {
+  .tile img:not(.happy-icon) {
     width: 70px !important;
     height: 70px !important;
   }
@@ -93,5 +197,4 @@ h1 {
   h1 {
     margin-top: 1.5em;
   }
-  /* .pipe svg already fills the tile, so no override needed */
 }
