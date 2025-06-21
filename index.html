@@ -6,17 +6,44 @@
   <title>Flow to Me - Level 1</title>
   <link rel="stylesheet" href="styles.css" />
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-
+  <link rel="preload" as="image" href="img/charity-water-logo.png">
+  <link rel="preload" as="image" href="img/village.svg">
+  <link rel="preload" as="image" href="img/wall.svg">
+  <link rel="preload" as="image" href="img/well.svg">
+  <link rel="preload" as="image" href="img/happy.svg">
 </head>
 <body>
   <header class="top-bar">
-    <div class=clean class="logo">
+    <div class="logo">
       <a href="https://www.charitywater.org/" target="_blank">
         <img src="img/charity-water-logo.png" alt="charity: water logo" style="height:20px; vertical-align:middle;">
       </a>
     </div>
-    <div class="menu-icon">☰</div>
+    <div id="close-menu" class="menu-icon" style="display:none">✕</div>
+    <div id="open-menu" class="menu-icon">☰</div>
   </header>
+
+    <!-- Start Screen Overlay -->
+  <div id="start-screen">
+    <h1>Flow to Me</h1>
+    <p class="subtitle">A puzzle game for</p>
+      <div class="logo">
+      <a href="https://www.charitywater.org/" target="_blank">
+        <img src="img/charity-water-logo.png" alt="charity: water logo" style="height:20px; vertical-align:middle;">
+      </a>
+      </div>
+    <div class="desc">
+      Flow to Me is a puzzle game about bringing clean water to every village. It's inspired by the work of <b>charity: water</b>, a nonprofit that helps communities around the world get access to clean, safe drinking water.
+    </div>
+    <div class="how-to">
+      <b>How to play:</b>
+      <ul>
+        <li>Use tiles to create water paths from wells to all villages</li>
+        <li>Drag and drop to swap tiles and tap to rotate them</li>
+      </ul>
+    </div>
+    <button id="start-btn">Start</button>
+  </div>
 
   <main>
     <h1>Flow to Me</h1>
@@ -34,8 +61,22 @@
         <button id="next-level-btn">Next Level</button>
       </div>
     </div>
-
   </main>
+  <div id="menu-overlay" class="overlay hidden">
+      <h2>Menu</h2>
+      <button id="restart-btn">Restart Current Level</button>
+      <div class="level-selector">
+        <h3>Levels: </h3>
+        <div id="level-buttons"></div>
+      </div>
+      <div class="how-to">
+        <b>How to play:</b>
+        <ul>
+          <li>Use tiles to create water paths from wells to all villages</li>
+          <li>Drag and drop to swap tiles and tap to rotate them</li>
+        </ul>
+      </div>
+    </div>
 
   <script src="script.js"></script>
 </body>

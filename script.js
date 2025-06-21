@@ -8,45 +8,56 @@ function getRandomRotation() {
   return Math.floor(Math.random() * 4) * 90;
 }
 
-// Update layout: 4 columns and 6 rows to match the grid in styles.css
-const layout = [
+let completedLevels = [];
+let currentLevel = 0;
+
+const levels = [
+  // Level 1
   [
-    "empty",
-    { type: "pipe-l", rotation: getRandomRotation() },
-    "empty",
-    "empty"
+  ["empty", "empty", {type: "well"}, "empty"],
+  [{ type: "pipe-l", rotation: getRandomRotation()}, "empty", "wall", "empty"],
+  [{ type: "pipe-i", rotation: getRandomRotation() }, { type: "pipe-i", rotation: getRandomRotation() }, { type: "pipe-l", rotation: getRandomRotation() }, "wall"],
+  ["empty", "wall", "empty", "empty"],
+  [{ type: "pipe-l", rotation: getRandomRotation() }, { type: "pipe-l", rotation: getRandomRotation() }, { type: "pipe-i", rotation: getRandomRotation() }, "empty"],
+  ["empty", { type: "village"}, "empty", "empty"],
   ],
+  // Level 2
   [
-    "empty",
-    { type: "pipe-t", rotation: getRandomRotation() },
-    { type: "village" },
-    "wall"
+  ["empty", { type: "pipe-l", rotation: getRandomRotation() }, "empty", "empty"],
+  ["wall", "empty", { type: "village" }, "wall"],
+  [{ type: "pipe-l", rotation: getRandomRotation() }, { type: "pipe-i", rotation: getRandomRotation() }, { type: "pipe-l", rotation: getRandomRotation() }, "empty"],
+  [{ type: "well"}, "wall", { type: "pipe-i", rotation: getRandomRotation() }, "empty"],
+  ["wall", "empty", "empty", { type: "pipe-t", rotation: getRandomRotation() }],
+  ["empty", { type: "village" }, "empty", "empty"]
   ],
-  [
-    { type: "pipe-l", rotation: getRandomRotation() },
-    { type: "pipe-i", rotation: getRandomRotation() },
-    { type: "pipe-l", rotation: getRandomRotation() },
-    "empty"
-  ],
-  [
-    { type: "well", rotation: 0 },
-    "wall",
-    { type: "pipe-i", rotation: getRandomRotation() },
-    "empty"
-  ],
-  [
-    "wall",
-    { type: "village" },
-    "empty",
-    { type: "pipe-t", rotation: getRandomRotation() }
-  ],
-  [
-    "empty",
-    "empty",
-    "empty",
-    "empty"
-  ]
+  // L
 ];
+
+let layout = JSON.parse(JSON.stringify(levels[currentLevel]));
+layout = adjustLayoutForScreenSize(layout);
+
+function createLevelButtons() {
+  const container = document.getElementById("level-buttons");
+  container.innerHTML = ""; // clear old buttons if any
+
+  for (let i = 0; i < levels.length; i++) {
+    const btn = document.createElement("button");
+    btn.textContent = `${i + 1}`;
+    btn.classList.add("level-btn");
+    if (completedLevels.includes(i)) {
+      btn.classList.add("completed");
+    }
+
+    btn.addEventListener("click", () => {
+      loadLevel(i);
+      hideOverlays(); // optional, if using a popup
+      window.levelComplete = false; // reset level complete state
+    });
+
+    container.appendChild(btn);
+  }
+}
+
 
 // --- DRAG AND DROP VARIABLES ---
 
@@ -153,7 +164,10 @@ function createTile(tileData, rowIdx, colIdx) {
         // Re-render the grid to show the swap
         grid.innerHTML = "";
         const tileElements = renderGrid(); // Get new tile elements after rendering
-        updateWaterflow(layout, tileElements); // Update water after swap
+        // Let the browser paint first
+        setTimeout(() => {
+          updateWaterflow(layout, tileElements);
+        }, 30);
         
 
 
@@ -240,8 +254,12 @@ function createTile(tileData, rowIdx, colIdx) {
         currentTile.rotation += 90;
         // Store on dataset
         tile.dataset.rotation = currentTile.rotation;
-        // Apply only the visible rotation (prevents reverse spinning)
-        tile.style.transform = `rotate(${currentTile.rotation}deg)`;
+        // Apply only the visible rotation (prevents reverse spinning) and ensure transition is respected
+        tile.style.transition = "none";
+        tile.style.transform = `rotate(${currentTile.rotation - 90}deg)`; // previous state
+        tile.offsetHeight; // force reflow
+        tile.style.transition = "transform 0.3s ease";
+        tile.style.transform = `rotate(${currentTile.rotation}deg)`; // new state
 
         // After rotation, update water flow and highlight clean tiles
         // We need to get the latest tileElements
@@ -378,6 +396,30 @@ function replaceLayout(newLayout) {
   }
 }
 
+function adjustLayoutForScreenSize(layout) {
+  if (isLargeScreen()) {
+    // Rotate layout 90° CCW and adjust pipe rotations
+    const rotated = rotateLayoutCCW(layout);
+    for (let row = 0; row < rotated.length; row++) {
+      for (let col = 0; col < rotated[row].length; col++) {
+        const tile = rotated[row][col];
+        if (typeof tile === "object" && tile !== null) {
+          if (
+            tile.type === "pipe-l" ||
+            tile.type === "pipe-t" ||
+            tile.type === "pipe-i"
+          ) {
+            tile.rotation = (tile.rotation - 90 + 360) % 360;
+          }
+        }
+      }
+    }
+    return rotated;
+  }
+  return layout; // No change for small screens
+}
+
+
 let tooltipTimeoutId = null;
 
 function showTileLabel(event, label) {
@@ -426,36 +468,14 @@ function renderGrid() {
     });
   });
   // Always update water flow after rendering the grid
-  updateWaterflow(layout, tileElements);
+  setTimeout(() => {
+    updateWaterflow(layout, tileElements);
+  }, 20);
   return tileElements; // Return tileElements so we can use it elsewhere
 }
 
 // Track the last screen size (true = large, false = small)
 let wasLargeScreen = isLargeScreen();
-
-// --- INITIAL LAYOUT ROTATION FOR LARGE SCREENS ---
-
-// If the page loads on a large screen, rotate the layout and adjust pipe rotations
-if (wasLargeScreen) {
-  // Rotate layout 90deg CCW and subtract 90deg from each pipe
-  const rotated = rotateLayoutCCW(layout);
-  for (let row = 0; row < rotated.length; row++) {
-    for (let col = 0; col < rotated[row].length; col++) {
-      const tile = rotated[row][col];
-      if (typeof tile === "object" && tile !== null) {
-        if (
-          tile.type === "pipe-l" ||
-          tile.type === "pipe-t" ||
-          tile.type === "pipe-i"
-        ) {
-          tile.rotation -= 90;
-          if (tile.rotation < 0) tile.rotation += 360;
-        }
-      }
-    }
-  }
-  replaceLayout(rotated);
-}
 
 // This function updates pipe rotations and layout when screen size changes
 function updateLayoutForScreenChange(isNowLarge) {
@@ -516,6 +536,7 @@ window.addEventListener("resize", () => {
 });
 
 // Initial render and waterflow update
+updateLevelLabel();
 const tileElements = renderGrid();
 updateWaterflow(layout, tileElements);
 
@@ -550,7 +571,7 @@ function updateWaterflow(layout, tileElements) {
     for (let col = 0; col < numCols; col++) {
       const tile = layout[row][col];
       if (typeof tile === "object" && tile.type === "well") {
-        flowFromTile(row, col, layout, tileElements, 0);
+        flowFromTile(row, col, layout, tileElements, 0, false);
       }
     }
   }
@@ -587,16 +608,22 @@ function updateWaterflow(layout, tileElements) {
 
 
 // Recursive helper for water flow
-function flowFromTile(row, col, layout, tileElements, delay=0) {
+function flowFromTile(row, col, layout, tileElements, delay=0, useDelay=false) {
   const tile = layout[row][col];
   if (!tile || tile.hasCleanWater) return;
 
   // Mark as having clean water
   tile.hasCleanWater = true;
 
-  setTimeout(() => {
-  tileElements[row][col].classList.add("clean");
-   }, delay);
+  const applyClean = () => {
+    tileElements[row][col].classList.add("clean");
+  };
+
+  if (useDelay) {
+    setTimeout(applyClean, delay);
+  } else {
+    applyClean();
+  }
 
   const connections = getConnections(tile);
   const directions = {
@@ -612,7 +639,7 @@ function flowFromTile(row, col, layout, tileElements, delay=0) {
     right: "left",
   };
 
-  const nextDelay = delay + 100; // delay increases as we go deeper
+  const nextDelay = delay + (useDelay ? 100 : 0); // delay increases as we go deeper
 
   for (let dir of connections) {
     const [dRow, dCol] = directions[dir];
@@ -629,7 +656,7 @@ function flowFromTile(row, col, layout, tileElements, delay=0) {
         typeof neighbor === "object" &&
         getConnections(neighbor).includes(opposite[dir])) 
         {
-          flowFromTile(newRow, newCol, layout, tileElements, nextDelay); // Recursive
+          flowFromTile(newRow, newCol, layout, tileElements, nextDelay, useDelay); // Recursive
         }
       }
   }
@@ -673,21 +700,25 @@ function getConnections(tile) {
 
 function showWinPopup() {
   window.levelComplete = true;
-
-  // Fire confetti (once)
-  confetti({
-    particleCount: 200,
-    spread: 150,
-    origin: { y: 0.6 }
-  });
+  if (!completedLevels.includes(currentLevel)) {
+  completedLevels.push(currentLevel);
+  }
+  createLevelButtons(); // Refresh buttons to reflect updated completion
 
   // Wait a tiny bit, then show overlay and popup
   setTimeout(() => {
+      // Fire confetti (once)
+    confetti({
+      particleCount: 200,
+      spread: 150,
+      origin: { y: 0.6 }
+    });
+
     const overlay = document.getElementById("win-overlay");
     const popup = document.getElementById("win-popup");
 
     overlay.classList.remove("hidden"); // show overlay
-  void popup.offsetWidth; // <- this line forces reflow
+    void popup.offsetWidth; // <- this line forces reflow
     popup.classList.add("visible");     // animate popup
 
     const confettiCanvas = document.querySelector("canvas");
@@ -698,16 +729,101 @@ function showWinPopup() {
       confettiCanvas.style.top = "0";
       confettiCanvas.style.left = "0";
     }
-  }, 50);
+  }, 200);
 }
 
-// Close popup on next level button
 document.getElementById("next-level-btn").addEventListener("click", () => {
+  currentLevel++;
+  if (currentLevel < levels.length) {
+    layout = JSON.parse(JSON.stringify(levels[currentLevel]));
+    layout = adjustLayoutForScreenSize(layout);
+    grid.innerHTML = "";
+    window.levelComplete = false;
+    updateLevelLabel(); // Update the level label
+    const tileElements = renderGrid();
+    updateWaterflow(layout, tileElements);
+    const overlay = document.getElementById("win-overlay");
+    const popup = document.getElementById("win-popup");
+    popup.classList.remove("visible"); // fade out
+    overlay.classList.add("hidden");   // hide overlay
+  } else {
+    // No more levels — show final message
+    alert("You've brought clean water to every village!");
+  }
+});
+
+// Helper function to update the level label
+function updateLevelLabel() {
+  const levelLabel = document.querySelector('.level-label');
+  if (levelLabel) {
+    levelLabel.textContent = `Level ${currentLevel + 1}`;
+  }
+}
+
+// Hide start screen and show game when Start is clicked
+const startScreen = document.getElementById("start-screen");
+const startBtn = document.getElementById("start-btn");
+const openMenu = document.getElementById('open-menu');
+if (startScreen && startBtn) {
+  // Hide the open-menu icon at first
+  if (openMenu) openMenu.style.display = 'none';
+  startBtn.addEventListener("click", () => {
+    startScreen.style.display = "none";
+    updateLevelLabel(); // Update the level label when game starts
+    // Show the open-menu icon when the game starts
+    if (openMenu) openMenu.style.display = 'block';
+    createLevelButtons(); // Show level buttons as soon as the game starts
+  });
+}
+
+// Also create level buttons on initial load (in case menu is opened before playing)
+createLevelButtons();
+
+// Show/hide menu overlay when menu icons are clicked
+const closeMenu = document.getElementById('close-menu');
+const menuOverlay = document.getElementById('menu-overlay');
+// Add openMenu again in case it's not in scope
+const openMenuBtn = document.getElementById('open-menu');
+
+if (openMenuBtn && closeMenu && menuOverlay) {
+  openMenuBtn.addEventListener('click', () => {
+    menuOverlay.classList.remove('hidden');
+    openMenuBtn.style.display = 'none';
+    closeMenu.style.display = 'block';
+  });
+  closeMenu.addEventListener('click', () => {
+    menuOverlay.classList.add('hidden');
+    openMenuBtn.style.display = 'block';
+    closeMenu.style.display = 'none';
+  });
+}
+
+function loadLevel(index) {
+  currentLevel = index;
+  layout = JSON.parse(JSON.stringify(levels[index]));
+  layout = adjustLayoutForScreenSize(layout);
+  grid.innerHTML = "";
+  const tileElements = renderGrid();
+  updateWaterflow(layout, tileElements);
+  updateLevelLabel(); // Update the level label
+}
+
+document.getElementById("restart-btn").addEventListener("click", () => {
+  loadLevel(currentLevel);
+  window.levelComplete = false;
+  hideOverlays(); // Hide overlays when restarting
+});
+
+function hideOverlays() {
   const overlay = document.getElementById("win-overlay");
   const popup = document.getElementById("win-popup");
-
-  popup.classList.remove("visible"); // fade out
-  overlay.classList.add("hidden");   // hide overlay
-  // You can also add: advanceToNextLevel(); or similar
-});
+  if (overlay) overlay.classList.add("hidden");
+  if (popup) popup.classList.remove("visible");
+  const menuOverlay = document.getElementById('menu-overlay');
+  if (menuOverlay) menuOverlay.classList.add('hidden')
+  const openMenuBtn = document.getElementById('open-menu');
+  if (openMenuBtn) openMenuBtn.style.display = 'block';
+  const closeMenu = document.getElementById('close-menu');
+  if (closeMenu) closeMenu.style.display = 'none';
+}
 

@@ -6,11 +6,87 @@ body {
   text-align: center;
 }
 
+/* Start Screen Styles */
+#start-screen {
+  position: fixed;
+  inset: 0;
+  background: white;
+  z-index: 3000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+  text-align: center;
+}
+#start-screen h1 {
+  font-size: 2.2rem;
+  margin-bottom: 8px;
+}
+#start-screen .desc {
+  font-size: 1rem;
+  margin-bottom: 24px;
+  max-width: 450px;
+  text-align: left;
+  line-height: 1.25;
+}
+
+button {
+  font-size: 1.1rem;
+  background: #14a1ea;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 11px 32px;
+  cursor: pointer;
+  margin-top: 16px;
+  transition: background 0.2s;
+}
+button:hover {
+  background: #117bb8;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: #555;
+  margin-top: 4px;
+  margin-bottom: 8px;
+}
+
+#start-screen .logo {
+  margin-bottom: 16px;
+}
+
+#start-screen .logo img {
+  height: 25px !important;
+}
+
+.how-to {
+  background: #fff7e1;
+  border-radius: 10px;
+  padding: 16px 24px;
+  margin-top: 60px;
+  margin-bottom: 24px;
+  margin-left: 20px;
+  margin-right: 20px;
+  text-align: left;
+  max-width: 450px;
+  font-size: 1rem;
+}
+.how-to ul {
+  margin: 8px 0 0 24px;
+  padding: 0;
+  text-align: left;
+}
+
 .top-bar {
   display: flex;
   justify-content: space-between;
   padding: 1rem;
   font-weight: bold;
+  background: white;
+  z-index: 3001;
+  position: relative;
 }
 
 .logo {
@@ -23,15 +99,18 @@ body {
   color: #78a8ba;
   cursor: pointer;
 }
+.menu-icon:hover {
+  color: #bf6b45;
+}
 
-h1 {
+main h1 {
   margin-top: 0em;    
   margin-bottom: 0.3em;
   font-size: 1.8rem;
 }
 
 .level-label {
-  margin: 0 0 1em;
+  margin: 0 0 16px;
   font-weight: 500;
   color: #555;
 }
@@ -43,7 +122,6 @@ h1 {
   gap: 5px;
   justify-content: center;
   margin: auto;
-  transition: all 0.3s;
 }
 
 .tile {
@@ -63,8 +141,8 @@ h1 {
 }
 
 .clean {
+  transition: color .6s ease;
   color: #14a1ea;
-  transition: color 0.4s ease;
 }
 
 .happy-icon {
@@ -139,7 +217,7 @@ h1 {
   background: white;
   border-radius: 12px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-  padding: 1em 2em;
+  padding: 16px 32px;
   max-width: 300px;
   text-align: center;
   opacity: 0;
@@ -153,14 +231,17 @@ h1 {
 }
 
 #next-level-btn {
-  margin-top: 1em;
-  padding: 0.5em 1em;
+  margin-top: 16px;
+  padding: 8px 16px;
   font-size: 1rem;
   background-color: #14a1ea;
   color: white;
   border: none;
   border-radius: 8px;
   cursor: pointer;
+}
+#next-level-btn:hover {
+  background-color: #117bb8;
 }
 
 canvas.confetti.foreground-confetti {
@@ -169,6 +250,73 @@ canvas.confetti.foreground-confetti {
   left: 0;
   z-index: 2000 !important;
   pointer-events: none;
+}
+
+#menu-overlay {
+  position: fixed;
+  top: 60px; /* height of the top bar, adjust if needed */
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255,255,255,0.97);
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 40px;
+}
+#menu-overlay.hidden {
+  display: none;
+}
+
+#restart-btn {
+  font-size: 18px;
+  background:#e5e5e5;
+  color: #333;
+  border: none;
+  border-radius: 8px;
+  padding: 11px 32px;
+  cursor: pointer;
+  margin-top: 16px;
+  margin-bottom: 40px;
+  transition: background 0.2s;
+}
+#restart-btn:hover {
+  background: #78a8ba;
+}
+
+.level-selector {
+  margin: 0 20px;
+}
+
+#level-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.level-btn {
+  padding: 0.5em 1em;
+  font-size: 24px;
+  border: none;
+  border-radius: 8px;
+  background: #e5e5e5;
+  cursor: pointer;
+  color: #333;
+  font-weight: semibold;
+  width: 90px;
+}
+
+.level-btn:hover {
+  background: #78a8ba;
+}
+
+.level-btn.completed {
+  background: #f6c618;
+}
+.level-btn.completed:hover {
+  background: #bf6b45;
 }
 
 
@@ -190,11 +338,11 @@ canvas.confetti.foreground-confetti {
     height: 70px !important;
   }
   .level-label {
-    margin: 1.5em; 
+    margin: 24px; 
     font-size: 1.2rem; /* slightly larger font size */
   }
   /* Add more space above the title on large screens */
-  h1 {
-    margin-top: 1.5em;
+  main h1 {
+    margin-top: 24px;
   }
 }
