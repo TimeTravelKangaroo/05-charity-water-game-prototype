@@ -10,6 +10,7 @@ function getRandomRotation() {
 
 let completedLevels = [];
 let currentLevel = 0;
+let allLevelsCompleted = false; // Track if all levels have been completed
 
 const levels = [
   // Level 1
@@ -30,7 +31,15 @@ const levels = [
   ["wall", "empty", "empty", { type: "pipe-t", rotation: getRandomRotation() }],
   ["empty", { type: "village" }, "empty", "empty"]
   ],
-  // L
+  // Level 3
+  [
+  [{type: "pipe-l", rotation: getRandomRotation() }, {type: "pipe-l", rotation: getRandomRotation() }, {type: "well"}, "empty"],
+  ["empty", "empty", { type: "pipe-i", rotation: getRandomRotation() }, "empty"],
+  ["wall", { type: "village" }, "wall", "wall"],
+  ["wall", "empty", "wall", "wall"],
+  ["empty", {type: "pipe-l", rotation: getRandomRotation() }, "empty", "empty"],
+  [{ type: "pipe-i", rotation: getRandomRotation() }, "empty", { type: "pipe-l", rotation: getRandomRotation() }, { type: "village" }]
+  ],
 ];
 
 let layout = JSON.parse(JSON.stringify(levels[currentLevel]));
@@ -703,6 +712,7 @@ function showWinPopup() {
   if (!completedLevels.includes(currentLevel)) {
   completedLevels.push(currentLevel);
   }
+
   createLevelButtons(); // Refresh buttons to reflect updated completion
 
   // Wait a tiny bit, then show overlay and popup
@@ -730,11 +740,17 @@ function showWinPopup() {
       confettiCanvas.style.left = "0";
     }
   }, 200);
+  
+  // Check if all levels are completed for the first time
+  if (completedLevels.length === levels.length && !allLevelsCompleted) {
+    allLevelsCompleted = true; // Set flag so alert only shows once
+    alert("You've brought clean water to every village!");
+  }
 }
 
 document.getElementById("next-level-btn").addEventListener("click", () => {
   currentLevel++;
-  if (currentLevel < levels.length) {
+    if (currentLevel < levels.length) {
     layout = JSON.parse(JSON.stringify(levels[currentLevel]));
     layout = adjustLayoutForScreenSize(layout);
     grid.innerHTML = "";
@@ -747,8 +763,8 @@ document.getElementById("next-level-btn").addEventListener("click", () => {
     popup.classList.remove("visible"); // fade out
     overlay.classList.add("hidden");   // hide overlay
   } else {
-    // No more levels — show final message
-    alert("You've brought clean water to every village!");
+    // No more levels, but not all completed
+    alert("Return to the menu to play again or try a different level!");
   }
 });
 
