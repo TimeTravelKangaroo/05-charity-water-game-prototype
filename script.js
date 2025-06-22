@@ -710,14 +710,12 @@ function getConnections(tile) {
 function showWinPopup() {
   window.levelComplete = true;
   if (!completedLevels.includes(currentLevel)) {
-  completedLevels.push(currentLevel);
+    completedLevels.push(currentLevel);
   }
 
   createLevelButtons(); // Refresh buttons to reflect updated completion
 
-  // Wait a tiny bit, then show overlay and popup
   setTimeout(() => {
-      // Fire confetti (once)
     confetti({
       particleCount: 200,
       spread: 150,
@@ -727,9 +725,9 @@ function showWinPopup() {
     const overlay = document.getElementById("win-overlay");
     const popup = document.getElementById("win-popup");
 
-    overlay.classList.remove("hidden"); // show overlay
-    void popup.offsetWidth; // <- this line forces reflow
-    popup.classList.add("visible");     // animate popup
+    overlay.classList.remove("hidden");
+    void popup.offsetWidth;
+    popup.classList.add("visible");
 
     const confettiCanvas = document.querySelector("canvas");
     if (confettiCanvas) {
@@ -740,13 +738,26 @@ function showWinPopup() {
       confettiCanvas.style.left = "0";
     }
   }, 200);
-  
-  // Check if all levels are completed for the first time
+
+  // Only show the alert the first time all levels are completed
   if (completedLevels.length === levels.length && !allLevelsCompleted) {
     allLevelsCompleted = true; // Set flag so alert only shows once
-    alert("You've brought clean water to every village!");
+    setTimeout(() => {
+      alert("You've brought clean water to every village!");
+    }, 500);
   }
 }
+
+// Restart the current level when the restart button is clicked
+document.getElementById("restart-btn").addEventListener("click", () => {
+  // Reload the current level
+  loadLevel(currentLevel);
+  // Allow the player to win again on this level
+  window.levelComplete = false;
+  // Hide any overlays or popups
+  hideOverlays();
+  // Note: We do NOT reset allLevelsCompleted here, so the "all levels complete" alert only shows once
+});
 
 document.getElementById("next-level-btn").addEventListener("click", () => {
   currentLevel++;
