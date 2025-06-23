@@ -848,6 +848,7 @@ if (startScreen && startBtn) {
   // Hide the open-menu icon at first
   if (openMenu) openMenu.style.display = 'none';
   startBtn.addEventListener("click", () => {
+    startScreen.classList.add("hidden"); // Add hidden class for CSS
     startScreen.style.display = "none";
     updateLevelLabel(); // Update the level label when game starts
     // Show the open-menu icon when the game starts

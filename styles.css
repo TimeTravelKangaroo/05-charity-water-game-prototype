@@ -18,6 +18,8 @@ body {
   justify-content: center;
   padding: 32px 16px;
   text-align: center;
+  overflow: auto;
+  max-height: 100vh;
 }
 #start-screen h1 {
   font-size: 2.2rem;
@@ -79,13 +81,14 @@ button:hover {
 }
 
 .top-bar {
-  display: flex;
+  display: none;
   justify-content: space-between;
   padding: 1rem;
   font-weight: bold;
   background: white;
   z-index: 3001;
-  position: relative;
+  position: sticky;
+  top: 0;
 }
 
 .logo {
@@ -203,6 +206,8 @@ main h1 {
   z-index: 1000;
   opacity: 1; /* no fade */
   transition: none; /* <- no animation here */
+  overflow: auto;
+  max-height: 100vh;
 }
 
 #win-overlay.hidden {
@@ -264,6 +269,8 @@ canvas.confetti.foreground-confetti {
   align-items: center;
   justify-content: flex-start;
   padding-top: 40px;
+  overflow: auto;
+  max-height: 100vh;
 }
 #menu-overlay.hidden {
   display: none;
@@ -345,4 +352,25 @@ canvas.confetti.foreground-confetti {
   main h1 {
     margin-top: 24px;
   }
+}
+
+/* Hide the top bar when the start screen is visible */
+#start-screen {
+  overflow: auto;
+  max-height: 100vh;
+}
+
+#start-screen.hidden ~ .top-bar {
+  display: flex !important;
+}
+
+body:has(#start-screen.hidden) .top-bar {
+  display: flex !important;
+}
+
+#start-screen:not(.hidden) ~ .top-bar {
+  display: none !important;
+}
+body:has(#start-screen:not(.hidden)) .top-bar {
+  display: none !important;
 }
