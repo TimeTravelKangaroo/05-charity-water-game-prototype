@@ -73,6 +73,11 @@ function createLevelButtons() {
 let draggedTileIndex = null;
 let ghostTile = null;
 
+// --- TOUCH SUPPORT FOR MOBILE DRAG AND DROP ---
+let selectedTileIndex = null; // For mobile long-press-to-swap
+let longPressTimer = null; // Timer for long-press
+let isLongPress = false; // Track if long-press is active
+
 // --- TILE CREATION AND EVENT HANDLING ---
 
 function createTile(tileData, rowIdx, colIdx) {
@@ -133,6 +138,54 @@ function createTile(tileData, rowIdx, colIdx) {
       }
       document.removeEventListener("dragover", moveGhostTile);
     });
+
+    // --- Touch support for mobile ---
+    // When a tile is tapped, remember it as the selected tile
+    tile.addEventListener("touchstart", (event) => {
+      // Start a timer to detect long-press (400ms)
+      isLongPress = false;
+      longPressTimer = setTimeout(() => {
+        isLongPress = true;
+        selectedTileIndex = { row: rowIdx, col: colIdx };
+        tile.classList.add("selected"); // Highlight selected tile
+      }, 400);
+    }, { passive: false });
+
+    tile.addEventListener("touchend", (event) => {
+      clearTimeout(longPressTimer);
+      // If a long-press was detected, wait for next tap to swap
+      if (isLongPress) {
+        // Do nothing here, wait for next tap
+        event.preventDefault();
+      } else if (selectedTileIndex && (selectedTileIndex.row !== rowIdx || selectedTileIndex.col !== colIdx)) {
+        // If a tile is already selected, and this is a different tile, swap them
+        const from = selectedTileIndex;
+        const to = { row: rowIdx, col: colIdx };
+        const fromTile = layout[from.row][from.col];
+        const toTile = layout[to.row][to.col];
+        const fromType = typeof fromTile === "object" ? fromTile.type : fromTile;
+        const toType = typeof toTile === "object" ? toTile.type : toTile;
+        const fromIsMoveable = !(fromType === "well" || fromType === "wall" || fromType === "village");
+        const toIsMoveable = !(toType === "well" || toType === "wall" || toType === "village");
+        if (fromIsMoveable && toIsMoveable) {
+          // Swap tiles
+          const temp = layout[to.row][to.col];
+          layout[to.row][to.col] = layout[from.row][from.col];
+          layout[from.row][from.col] = temp;
+          // Re-render grid
+          grid.innerHTML = "";
+          const tileElements = renderGrid();
+          setTimeout(() => {
+            updateWaterflow(layout, tileElements);
+          }, 30);
+        }
+        // Remove highlight from all tiles
+        document.querySelectorAll('.tile.selected').forEach(t => t.classList.remove('selected'));
+        selectedTileIndex = null;
+        isLongPress = false;
+        event.preventDefault();
+      }
+    }, { passive: false });
   }
 
   // All tiles can be drop targets, so allow dragover and drop
@@ -853,4 +906,26 @@ function hideOverlays() {
   const closeMenu = document.getElementById('close-menu');
   if (closeMenu) closeMenu.style.display = 'none';
 }
+
+// --- Update how-to instructions for mobile users ---
+// This changes the how-to text to explain long-press swap on mobile devices
+function isMobile() {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  if (isMobile()) {
+    // Find all how-to lists
+    const howToLists = document.querySelectorAll('.how-to ul');
+    howToLists.forEach(list => {
+      // Find the list item that mentions 'Drag and drop'
+      const items = list.querySelectorAll('li');
+      items.forEach(li => {
+        if (li.textContent.toLowerCase().includes('drag and drop')) {
+          li.textContent = 'Long press a tile, then tap another to swap them';
+        }
+      });
+    });
+  }
+});
 
